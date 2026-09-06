@@ -58,6 +58,7 @@ jobs:
 
       - name: Build package
         run: |
+          cmake --build build --config Release -j8
           cmake --build build --config Release -j8 --target package
           if ($LASTEXITCODE -ne 0) {
             Write-Host "=== Packaging failed, dumping WiX log ==="
