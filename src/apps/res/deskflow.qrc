@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
+        <file>themes/ldeskflow-dark.qss</file>
+        <file>themes/ldeskflow-light.qss</file>
         <file>icons/deskflow-dark/actions/16/configure.svg</file>
         <file>icons/deskflow-dark/actions/16/edit-copy.svg</file>
         <file>icons/deskflow-dark/actions/16/document-edit.svg</file>

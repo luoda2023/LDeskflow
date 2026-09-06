@@ -12,6 +12,7 @@
 
 #include "Diagnostic.h"
 #include "StyleUtils.h"
+#include "Theme.h"
 
 #include "dialogs/AboutDialog.h"
 #include "dialogs/ClientConfigDialog.h"
@@ -1002,6 +1003,7 @@ void MainWindow::changeEvent(QEvent *e)
 {
   QMainWindow::changeEvent(e);
   if (e->type() == QEvent::PaletteChange) {
+    theme::apply(isDarkMode());
     updateIconTheme();
     setWindowIcon(QIcon::fromTheme(kRevFqdnName));
     setTrayIcon();

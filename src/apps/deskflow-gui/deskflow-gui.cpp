@@ -16,6 +16,7 @@
 #include "gui/MainWindow.h"
 #include "gui/Messages.h"
 #include "gui/StyleUtils.h"
+#include "gui/Theme.h"
 
 #include <QApplication>
 #include <QCommandLineParser>
@@ -119,11 +120,12 @@ int main(int argc, char *argv[])
     return s_exitDuplicate;
   }
 
-  if (!deskflow::platform::isMac() && qEnvironmentVariable("XDG_CURRENT_DESKTOP") != QLatin1String("KDE")) {
-    QApplication::setStyle("fusion");
-  }
+  // Force the Fusion style so the brand theme renders identically on every
+  // platform (an OS-native style would ignore most of the brand stylesheet).
+  QApplication::setStyle("fusion");
 
-  // Sets the fallback icon path and fallback theme
+  // Apply the brand light/dark theme, then pick the matching icon theme.
+  deskflow::gui::theme::apply(deskflow::gui::isDarkMode());
   updateIconTheme();
 
   qInstallMessageHandler(deskflow::gui::messages::messageHandler);
