@@ -82,9 +82,12 @@ I18N::I18N(QObject *parent) : QObject{parent}
 
   static const auto s_prefix = QStringLiteral("_");
 
+  // Default to Simplified Chinese; English is the fallback source language.
+  // Users can switch to English via the language setting once running.
+  const auto defaultLocale = QLocale(QLocale::Chinese, QLocale::China);
   if (Settings::value(Settings::Core::Language).toString().isEmpty()) {
     auto appTranslator = new QTranslator(this);
-    if (appTranslator->load(QLocale(), kAppId, s_prefix, m_appTrPath)) {
+    if (appTranslator->load(defaultLocale, kAppId, s_prefix, m_appTrPath)) {
       m_currentTranslations.append(appTranslator);
       QCoreApplication::installTranslator(appTranslator);
     }
@@ -94,7 +97,7 @@ I18N::I18N(QObject *parent) : QObject{parent}
       m_currentLang = QStringLiteral("en");
 
     auto qtTranslator = new QTranslator(this);
-    if (qtTranslator->load(QLocale(), QStringLiteral("qt"), s_prefix, m_qtTrPath)) {
+    if (qtTranslator->load(defaultLocale, QStringLiteral("qt"), s_prefix, m_qtTrPath)) {
       m_currentTranslations.append(qtTranslator);
       QCoreApplication::installTranslator(qtTranslator);
     }
