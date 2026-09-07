@@ -101,25 +101,10 @@ jobs:
       - name: Configure
         run: ${{env.CMAKE_CONFIGURE}} -DBUILD_OSX_BUNDLE=ON -DCMAKE_OSX_ARCHITECTURES="arm64"
 
-      - name: Build package (with retries)
-        shell: bash
+      - name: Build package
         run: |
-          cmake --build build --config Release -j8
-          packaged=false
-          for i in $(seq 1 5); do
-            if cmake --build build --config Release -j8 --target package; then
-              echo "Package successful"
-              packaged=true
-              break
-            else
-              echo "Package attempt $i failed"
-              sleep 2
-            fi
-          done
-          if [ "$packaged" != true ]; then
-            echo "Packaging failed after 5 attempts" >&2
-            exit 1
-          fi
+          cmake --build build -j8
+          cmake --build build --target package
 
       - name: Upload packages
         uses: actions/upload-artifact@v4
@@ -128,10 +113,10 @@ jobs:
           path: ${{github.workspace}}/build/deskflow*.*
           if-no-files-found: error
 
-  linux-x86_64:
+  linux-x64:
     name: Linux x64 (deb)
     runs-on: ubuntu-latest
-    container: debian:trixie-slim
+    container: debian:trixie
     timeout-minutes: 60
     steps:
       - name: Install git in container
@@ -167,3 +152,28 @@ jobs:
           name: LDeskflow-linux-x64
           path: ${{github.workspace}}/build/deskflow*.*
           if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: [windows-x64, macos-arm64, linux-x64]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: List files
+        run: find dist -type f | sort
+
+      - name: Create Release and upload packages
+        uses: softprops/action-gh-release@v2
+        with:
+          name: LDeskflow ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: dist/**/deskflow*.*
