@@ -1003,10 +1003,17 @@ void MainWindow::changeEvent(QEvent *e)
 {
   QMainWindow::changeEvent(e);
   if (e->type() == QEvent::PaletteChange) {
-    theme::apply(isDarkMode());
-    updateIconTheme();
-    setWindowIcon(QIcon::fromTheme(kRevFqdnName));
-    setTrayIcon();
+    // Guard against infinite recursion: setting an application-wide stylesheet
+    // repolishes all widgets, which itself raises PaletteChange. Only react
+    // when the OS theme actually flipped between dark and light.
+    const bool dark = isDarkMode();
+    if (dark != m_lastDarkMode) {
+      m_lastDarkMode = dark;
+      theme::apply(dark);
+      updateIconTheme();
+      setWindowIcon(QIcon::fromTheme(kRevFqdnName));
+      setTrayIcon();
+    }
   } else if (e->type() == QEvent::LanguageChange) {
     ui->retranslateUi(this);
     updateModeControlLabels();
